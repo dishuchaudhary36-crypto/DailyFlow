@@ -1,0 +1,30 @@
+workflows:
+  dayflow-android:
+    name: DayFlow APK Build
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+
+    environment:
+      java: 17
+
+    scripts:
+      - name: Extract DayFlow Project
+        script: |
+          unzip -o DayFlow_Android_Project.zip -d extracted
+          ls -la extracted/DayFlowAndroid
+
+      - name: Setup Android SDK
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > extracted/DayFlowAndroid/local.properties
+
+      - name: Install Gradle
+        script: |
+          curl -L --fail https://services.gradle.org/distributions/gradle-8.9-bin.zip -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /tmp
+
+      - name: Build DayFlow APK
+        script: |
+          /tmp/gradle-8.9/bin/gradle -p extracted/DayFlowAndroid assembleDebug
+
+    artifacts:
+      - extracted/DayFlowAndroid/app/build/outputs/apk/debug/*.apk
